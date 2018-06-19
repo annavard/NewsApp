@@ -1,39 +1,37 @@
 package com.example.anna.newsapp.model;
 
-import android.arch.paging.DataSource;
 import android.arch.paging.PositionalDataSource;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.example.anna.newsapp.model.api_service.ApiService;
 import com.example.anna.newsapp.model.models.Result;
+import com.example.anna.newsapp.model.repository.ArticleRepository;
 
 import java.util.List;
 
-class ArticleDataSource extends PositionalDataSource<Result> {
+public class ArticleDataSource extends PositionalDataSource<Result> {
+    public static String TAG = "PositionalDataSource";
+    private ArticleRepository articleRepository;
 
-    private int computeCount() {
-        // actual count code here
-        return 10;
+    public ArticleDataSource(){
+        this.articleRepository = articleRepository;
     }
 
-    private List<Result> loadRangeInternal(int startPosition, int loadCount) {
-        // actual load code here
-       return ApiService.getService().getArticles("test", "thumbnail", startPosition, loadCount);
+
+    @Override
+    public void loadInitial(@NonNull LoadInitialParams params, @NonNull LoadInitialCallback<Result> callback) {
+        Log.d(TAG, "loadInitial");
+        List<Result> result= articleRepository.getArticles(params.requestedStartPosition, params.requestedLoadSize);
+        callback.onResult(result, 0);
+
     }
 
     @Override
-    public void loadInitial(@NonNull LoadInitialParams params,
-                            @NonNull LoadInitialCallback<Result> callback) {
-        int totalCount = computeCount();
-        int position = computeInitialLoadPosition(params, totalCount);
-        int loadSize = computeInitialLoadSize(params, position, totalCount);
-        callback.onResult(loadRangeInternal(position, loadSize), position, totalCount);
-    }
+    public void loadRange(@NonNull LoadRangeParams params, @NonNull LoadRangeCallback<Result> callback) {
+        Log.d(TAG, "loadRange");
+        ArticleRepository repository = new ArticleRepository();
+        List<Result> result= repository.getArticles(params.startPosition, params.loadSize);
+        callback.onResult(result);
 
-    @Override
-    public void loadRange(@NonNull LoadRangeParams params,
-                          @NonNull LoadRangeCallback<Result> callback) {
-        callback.onResult(loadRangeInternal(params.startPosition, params.loadSize));
     }
 }

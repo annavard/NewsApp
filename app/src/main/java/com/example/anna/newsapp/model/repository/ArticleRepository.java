@@ -19,20 +19,23 @@ import retrofit2.Response;
 public class ArticleRepository {
     public static final String TAG = "ArticleRepository";
 
-    public LiveData<PagedList<Result>> getArticles() {
-        final MutableLiveData<PagedList<Result>> result = new MutableLiveData<>();
+    public List<Result> getArticles(int startPosition, int loadSize) {
+//        final MutableLiveData<List<Result>> result = new MutableLiveData<>();
+        final List<Result>[] result = new List[]{new ArrayList<>()};
         Log.d(TAG, "getResults");
-        ApiService.getService().getArticles("test", "thumbnail").enqueue(new Callback<Example>() {
+        ApiService.getService().getArticles("test", "thumbnail", startPosition, loadSize)
+                .enqueue(new Callback<Example>() {
             @Override
             public void onResponse(Call<Example> call, Response<Example> response) {
                 Log.d(TAG, "onResponse");
                 if (response.isSuccessful()) {
                     Log.d(TAG, "isSuccessful");
-                    result.setValue(response.body().getResponse().getResults());
+//                    result.setValue(response.body().getResponse().getResults());
+                    result[0] = response.body().getResponse().getResults();
                     //TODO; CLEAR
-//                    for (Result result : articles[0]) {
-//                        Log.d(TAG, result.getSectionName());
-//                    }
+                    for (Result result : result[0]) {
+                        Log.d(TAG, result.getSectionName());
+                    }
 
                 }
             }
@@ -42,6 +45,6 @@ public class ArticleRepository {
                 Log.d(TAG, "onFailure");
             }
         });
-        return result;
+        return result[0];
     }
 }
