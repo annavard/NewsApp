@@ -14,27 +14,13 @@ import java.util.List;
 
 public class ArticleViewModel extends ViewModel {
     public static final String TAG = "ArticleViewModel";
-    private LiveData<PagedList<Result>> articleList;
+    private LiveData<List<Result>> articleList;
     private ArticleRepository articleRepository;
-    private DataSource.Factory<Long, Result> mDataSource;
 
-    public ArticleViewModel(DataSource.Factory<Long, Result> dataSource){
-        mDataSource = dataSource;
-    }
 
-    public LiveData<PagedList<Result>> getArticleList() {
+    public LiveData<List<Result>> getArticleList() {
         Log.d(TAG, "getArticleList");
         //TODO; add Dagger 2
-
-
-        PagedList.Config pagedListConfig =
-                (new PagedList.Config.Builder()).setEnablePlaceholders(true)
-                        .setPrefetchDistance(10)
-                        .setPageSize(20).build();
-
-        articleList = (new LivePagedListBuilder(mDataSource.usersByFirstName(), pagedListConfig))
-                .build();
-
         articleRepository = new ArticleRepository();
         articleList = articleRepository.getArticles();
         return articleList;

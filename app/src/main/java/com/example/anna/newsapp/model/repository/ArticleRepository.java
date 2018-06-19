@@ -19,10 +19,10 @@ import retrofit2.Response;
 public class ArticleRepository {
     public static final String TAG = "ArticleRepository";
 
-    public LiveData<PagedList<Result>> getArticles() {
-        final MutableLiveData<PagedList<Result>> result = new MutableLiveData<>();
+    public LiveData<List<Result>> getArticles() {
+        final MutableLiveData<List<Result>> result = new MutableLiveData<>();
         Log.d(TAG, "getResults");
-        ApiService.getService().getArticles("test", "thumbnail").enqueue(new Callback<Example>() {
+        ApiService.getService().getArticles("test", "thumbnail", 1, 20).enqueue(new Callback<Example>() {
             @Override
             public void onResponse(Call<Example> call, Response<Example> response) {
                 Log.d(TAG, "onResponse");

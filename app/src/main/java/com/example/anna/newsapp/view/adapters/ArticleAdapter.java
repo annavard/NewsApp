@@ -16,19 +16,14 @@ import com.example.anna.newsapp.view.view_holders.ArticleViewHolder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArticleAdapter extends PagedListAdapter<Result, ArticleViewHolder> {
+public class ArticleAdapter extends RecyclerView.Adapter<ArticleViewHolder> {
     private List<Result> mResultList;
-    private Context mContext;
 
-    public ArticleAdapter(@NonNull DiffUtil.ItemCallback<Result> diffCallback) {
-        super(diffCallback);
+
+    public ArticleAdapter(List<Result> resultList) {
+        mResultList = resultList;
     }
 
-//    public ArticleAdapter(List<Result> resultList, Context context){
-//        mResultList = new ArrayList<>();
-//        mResultList = resultList;
-//        mContext = context;
-//    }
 
     @Override
     public ArticleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -37,12 +32,11 @@ public class ArticleAdapter extends PagedListAdapter<Result, ArticleViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(ArticleViewHolder holder, int position) {
-        Result result = getItem(position);
-        if (result == null)
-            return;
-        holder.bindData(getItem(position));
+    public void onBindViewHolder(@NonNull ArticleViewHolder holder, int position) {
+        Result result = mResultList.get(position);
+        holder.bindData(result);
     }
+
 
     @Override
     public int getItemCount() {

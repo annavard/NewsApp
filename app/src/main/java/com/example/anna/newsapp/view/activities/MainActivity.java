@@ -6,7 +6,6 @@ import android.arch.paging.PagedList;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.util.DiffUtil;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -16,7 +15,6 @@ import com.example.anna.newsapp.model.models.Result;
 import com.example.anna.newsapp.view.adapters.ArticleAdapter;
 import com.example.anna.newsapp.view_model.ArticleViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -29,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     ArticleAdapter mAdapter;
     private static final String TAG = "MainActivity";
     private ArticleViewModel mArticleViewModel;
-    private LiveData<PagedList<Result>> mLiveArticles;
+    private LiveData<List<Result>> mLiveArticles;
     private List<Result> mArticles;
 
     @Override
@@ -43,22 +41,10 @@ public class MainActivity extends AppCompatActivity {
         mLiveArticles.observe(this, articles -> {
             Log.d(TAG, "List<Result> onChanged");
             mArticles = articles;
-            mAdapter = new ArticleAdapter(new DiffUtil.ItemCallback<Result>() {
-                @Override
-                public boolean areItemsTheSame(Result oldItem, Result newItem) {
-                    Log.d(TAG, "areItemsTheSame");
-                    return oldItem.getId() == newItem.getId();
-                }
-
-                @Override
-                public boolean areContentsTheSame(Result oldItem, Result newItem) {
-                    Log.d(TAG, "areContentsTheSame");
-                    oldItem.getWebTitle().equals(newItem.getWebTitle());
-                }
-            });
+            mAdapter = new ArticleAdapter(articles);;
             mRecyclerView.setAdapter(mAdapter);
-//            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-            RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
+            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+//            RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
             mRecyclerView.setLayoutManager(layoutManager);
             //TODO; Clear
             for (Result result : mArticles) {
