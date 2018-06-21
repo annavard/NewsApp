@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.example.anna.newsapp.R;
 import com.example.anna.newsapp.model.models.Result;
+import com.example.anna.newsapp.model.models.another.Photo;
 import com.squareup.picasso.Picasso;
 
 import butterknife.BindView;
@@ -31,13 +32,24 @@ public class ArticleViewHolder extends RecyclerView.ViewHolder {
         ButterKnife.bind(this, itemView);
     }
 
-    public void bindData(Result result) {
-        titleText.setText(result.getWebTitle());
-        categoryText.setText(result.getSectionName());
-        Log.d(TAG, result.getSectionName());
+//    public void bindData(Result result) {
+//        titleText.setText(result.getWebTitle());
+//        categoryText.setText(result.getSectionName());
+//        Log.d(TAG, result.getSectionName());
+//
+//        Picasso.get()
+//                .load(result.getFields().getThumbnail())
+//                .placeholder(R.drawable.placeholder)
+//                .into(thumbnailImage);
+//    }
+
+    public void bindData(Photo result) {
+        Log.d(TAG, result.getAlbumId().toString());
+        categoryText.setText(result.getAlbumId().toString());
+        titleText.setText(result.getTitle());
 
         Picasso.get()
-                .load(result.getFields().getThumbnail())
+                .load(result.getThumbnailUrl())
                 .placeholder(R.drawable.placeholder)
                 .into(thumbnailImage);
     }

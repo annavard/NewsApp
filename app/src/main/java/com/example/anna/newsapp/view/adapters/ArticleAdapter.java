@@ -11,19 +11,24 @@ import android.view.ViewGroup;
 
 import com.example.anna.newsapp.R;
 import com.example.anna.newsapp.model.models.Result;
+import com.example.anna.newsapp.model.models.another.Photo;
 import com.example.anna.newsapp.view.view_holders.ArticleViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ArticleAdapter extends RecyclerView.Adapter<ArticleViewHolder> {
-    private List<Result> mResultList;
+//    private List<Result> mResultList;
+    private List<Photo> mResultList;
 
 
-    public ArticleAdapter(List<Result> resultList) {
+//    public ArticleAdapter(List<Result> resultList) {
+//        mResultList = resultList;
+//    }
+
+    public ArticleAdapter(List<Photo> resultList) {
         mResultList = resultList;
     }
-
 
     @Override
     public ArticleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -33,7 +38,8 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ArticleViewHolder holder, int position) {
-        Result result = mResultList.get(position);
+//        Result result = mResultList.get(position);
+        Photo result = mResultList.get(position);
         holder.bindData(result);
     }
 
@@ -41,5 +47,15 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleViewHolder> {
     @Override
     public int getItemCount() {
         return mResultList.size();
+    }
+
+//    public void updateList(List<Result> newList){
+//        mResultList = newList;
+//        notifyDataSetChanged();
+//    }
+
+    public void updateList(List<Photo> newList){
+        mResultList = newList;
+        notifyDataSetChanged();
     }
 }
