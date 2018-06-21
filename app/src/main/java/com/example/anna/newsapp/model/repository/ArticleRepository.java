@@ -20,40 +20,13 @@ import retrofit2.Response;
 
 public class ArticleRepository {
     public static final String TAG = "ArticleRepository";
-    private ArticleViewModel viewModel;
+    private MutableLiveData<List<Photo>> mutableLiveData;
 
-    public ArticleRepository(ArticleViewModel viewModel){
-        this.viewModel = viewModel;
-    }
-
-//    public MutableLiveData<List<Result>> getArticles(int startPosition) {
-//        final MutableLiveData<List<Result>> result = new MutableLiveData<>();
-//        Log.d(TAG, "getResults");
-//        ApiService.getService().getArticles("test", "thumbnail").enqueue(new Callback<Example>() {
-//            @Override
-//            public void onResponse(Call<Example> call, Response<Example> response) {
-//                Log.d(TAG, "onResponse");
-//                if (response.isSuccessful()) {
-//                    Log.d(TAG, "isSuccessful");
-//                    result.setValue(response.body().getResponse().getResults());
-//                    //TODO; CLEAR
-////                    for (Result result : articles[0]) {
-////                        Log.d(TAG, result.getSectionName());
-////                    }
-//
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Example> call, Throwable t) {
-//                Log.d(TAG, "onFailure");
-//            }
-//        });
-//        return result;
-//    }
 
     public MutableLiveData<List<Photo>> getPhotos() {
-        final MutableLiveData<List<Photo>> result = new MutableLiveData<>();
+        if (mutableLiveData == null) {
+            mutableLiveData = new MutableLiveData<>();
+        }
         Log.d(TAG, "getResults");
         ApiService.getService().getPhotos().enqueue(new Callback<List<Photo>>() {
             @Override
@@ -61,26 +34,15 @@ public class ArticleRepository {
                 Log.d(TAG, "onResponse");
                 if (response.isSuccessful()) {
                     Log.d(TAG, "isSuccessful");
-                    viewModel.setPhotos(response.body());
-                    result.postValue(response.body());
-                    //TODO; CLEAR
-                    for (Photo result : response.body()) {
-                        Log.d(TAG, result.getThumbnailUrl());
-                    }
-
+                    mutableLiveData.setValue(response.body());
                 }
             }
 
             @Override
             public void onFailure(Call<List<Photo>> call, Throwable t) {
-                Log.d(TAG, "onFailure: " + t.getMessage() + "\n" +  t.getStackTrace());
+                Log.d(TAG, "onFailure: " + t.getMessage() + "\n" + t.getStackTrace());
             }
         });
-//        try {
-//            Thread.sleep(1000);
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-        return result;
+        return mutableLiveData;
     }
 }

@@ -1,10 +1,6 @@
 package com.example.anna.newsapp.view.activities;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -36,8 +32,6 @@ public class MainActivity extends AppCompatActivity {
     LinearLayoutManager mLayoutManager;
     private static final String TAG = "MainActivity";
     private ArticleViewModel mArticleViewModel;
-    private LiveData<List<Result>> mLiveArticles;
-    private MutableLiveData<List<Photo>> mLivePhotos;
     private List<Result> mArticles;
     private List<Photo> mPhotos;
     private boolean mIsLoading;
@@ -51,21 +45,16 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         mArticleViewModel = ViewModelProviders.of(this).get(ArticleViewModel.class);
-        mLivePhotos = loadData();
 //        mLiveArticles = loadData();
-        mLivePhotos.observe(this, new Observer<List<Photo>>() {
-            @Override
-            public void onChanged(@Nullable List<Photo> photos) {
-                Log.d(TAG, "onChanged!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                mProgressBar.setVisibility(View.GONE);
-                mPhotos = photos;
-                if(mIsInitialCall){
-                    initiateAdapter();
-                    mIsInitialCall = false;
-                }else {
-                    mAdapter.updateList(mPhotos.subList(mPageNumber, mPageNumber + 10));
-                }
-
+        mArticleViewModel.getPhotos().observe(this, photos -> {
+            Log.d(TAG, "onChanged!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            mProgressBar.setVisibility(View.GONE);
+            mPhotos = photos;
+            if (mIsInitialCall) {
+                initiateAdapter();
+                mIsInitialCall = false;
+            } else {
+                mAdapter.updateList(mPhotos.subList(mPageNumber, mPageNumber + 10));
             }
         });
 
@@ -85,8 +74,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
     private void initiateAdapter() {
         List<Photo> shrinkedList = mPhotos.subList(mPageNumber, mPageNumber + 10);
         mAdapter = new ArticleAdapter(shrinkedList);
@@ -95,11 +82,11 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setLayoutManager(mLayoutManager);
     }
 
-    private MutableLiveData<List<Photo>> loadData() {
+    private void loadData() {
         Log.d(TAG, "loadData");
-        if (mArticleViewModel == null) return null;
+        if (mArticleViewModel == null) return;
         mPageNumber += 10;
         mProgressBar.setVisibility(View.VISIBLE);
-        return mArticleViewModel.loadPhotos();
+         mArticleViewModel.getPhotos();
     }
 }

@@ -20,26 +20,14 @@ public class ArticleViewModel extends ViewModel {
     private MutableLiveData<List<Photo>> photos;
     private ArticleRepository articleRepository;
 
-//
-//    public LiveData<List<Result>> getArticleList(int startPositoon) {
-//        Log.d(TAG, "getArticleList");
-//        //TODO; add Dagger 2
-//        articleRepository = new ArticleRepository();
-//        articleList = articleRepository.getArticles(startPositoon);
-//        return articleList;
-//    }
 
-
-
-    public MutableLiveData<List<Photo>> loadPhotos() {
+    public LiveData<List<Photo>> getPhotos() {
         Log.d(TAG, "getArticleList");
         //TODO; add Dagger 2
-        articleRepository = new ArticleRepository(this);
+        if (articleRepository == null) {
+            articleRepository = new ArticleRepository();
+        }
         photos = articleRepository.getPhotos();
         return photos;
-    }
-
-    public void setPhotos(List<Photo> photos) {
-        this.photos.setValue(photos);
     }
 }

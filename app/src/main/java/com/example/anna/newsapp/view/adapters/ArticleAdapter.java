@@ -55,7 +55,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleViewHolder> {
 //    }
 
     public void updateList(List<Photo> newList){
-        mResultList = newList;
+        mResultList.addAll(newList);
         notifyDataSetChanged();
     }
 }
