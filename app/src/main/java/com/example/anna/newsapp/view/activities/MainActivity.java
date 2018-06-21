@@ -1,14 +1,13 @@
 package com.example.anna.newsapp.view.activities;
 
-import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
-import android.arch.paging.PagedList;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.example.anna.newsapp.R;
 import com.example.anna.newsapp.model.models.Result;
@@ -24,11 +23,16 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.recycler)
     RecyclerView mRecyclerView;
-    ArticleAdapter mAdapter;
+
+    @BindView(R.id.progress_pageing)
+    ProgressBar mProgressBar;
+
+    private ArticleAdapter mAdapter;
+    private LinearLayoutManager mLayoutManager;
     private static final String TAG = "MainActivity";
     private ArticleViewModel mArticleViewModel;
-    private LiveData<List<Result>> mLiveArticles;
     private List<Result> mArticles;
+    private boolean isFirstLoad = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,20 +41,44 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         mArticleViewModel = ViewModelProviders.of(this).get(ArticleViewModel.class);
-        mLiveArticles = mArticleViewModel.getArticleList();
-        mLiveArticles.observe(this, articles -> {
+        mArticleViewModel.getArticleList().observe(this, articles -> {
             Log.d(TAG, "List<Result> onChanged");
             mArticles = articles;
-            mAdapter = new ArticleAdapter(articles);;
-            mRecyclerView.setAdapter(mAdapter);
-            RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-//            RecyclerView.LayoutManager layoutManager = new GridLayoutManager(this, 2);
-            mRecyclerView.setLayoutManager(layoutManager);
-            //TODO; Clear
-            for (Result result : mArticles) {
-                Log.d(TAG, result.getSectionName());
+            if(isFirstLoad){
+                initAdapter();
+                isFirstLoad = false;
+            }else{
+                mAdapter.updateData(mArticles);
+            }
+
+        });
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                int lastPosition = mLayoutManager.findLastVisibleItemPosition();
+                Log.d(TAG, "onScrolled - lastPosition: " + lastPosition);
+                if (lastPosition == mLayoutManager.getItemCount() - 1) {
+                    Log.d(TAG, "onScrolled - End of list?");
+                    loadData();
+                }
             }
         });
 
+    }
+
+
+    private void loadData() {
+        Log.d(TAG, "loadData");
+        if (mArticleViewModel == null) return;
+        mProgressBar.setVisibility(View.VISIBLE);
+        mArticleViewModel.getArticleList();
+    }
+
+    public void initAdapter() {
+        mAdapter = new ArticleAdapter(mArticles);
+        mRecyclerView.setAdapter(mAdapter);
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
     }
 }

@@ -42,4 +42,9 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleViewHolder> {
     public int getItemCount() {
         return mResultList.size();
     }
+
+    public void updateData(List<Result> articles){
+        mResultList.addAll(articles);
+        notifyDataSetChanged();
+    }
 }

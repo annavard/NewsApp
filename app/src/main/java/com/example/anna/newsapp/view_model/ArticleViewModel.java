@@ -21,7 +21,9 @@ public class ArticleViewModel extends ViewModel {
     public LiveData<List<Result>> getArticleList() {
         Log.d(TAG, "getArticleList");
         //TODO; add Dagger 2
-        articleRepository = new ArticleRepository();
+        if(articleRepository == null) {
+            articleRepository = new ArticleRepository();
+        }
         articleList = articleRepository.getArticles();
         return articleList;
     }
