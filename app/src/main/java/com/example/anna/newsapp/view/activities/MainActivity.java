@@ -1,5 +1,6 @@
 package com.example.anna.newsapp.view.activities;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.ViewModelProviders;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.widget.ProgressBar;
 
 import com.example.anna.newsapp.R;
 import com.example.anna.newsapp.model.models.Result;
+import com.example.anna.newsapp.model.repository.ArticleRepository;
 import com.example.anna.newsapp.view.adapters.ArticleAdapter;
 import com.example.anna.newsapp.view_model.ArticleViewModel;
 
@@ -19,7 +21,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ArticleRepository.DataFetchListener {
 
     @BindView(R.id.recycler)
     RecyclerView mRecyclerView;
@@ -41,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         mArticleViewModel = ViewModelProviders.of(this).get(ArticleViewModel.class);
+        mArticleViewModel.init();
         mArticleViewModel.getArticleList().observe(this, articles -> {
             Log.d(TAG, "List<Result> onChanged");
             mArticles = articles;
@@ -80,5 +83,10 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView.setAdapter(mAdapter);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
+    }
+
+    @Override
+    public void onReceeived(LiveData<List<Result>> resultList) {
+
     }
 }

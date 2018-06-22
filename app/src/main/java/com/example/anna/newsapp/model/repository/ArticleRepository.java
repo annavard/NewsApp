@@ -20,6 +20,16 @@ public class ArticleRepository {
     public static final String TAG = "ArticleRepository";
     private MutableLiveData<List<Result>> articles;
 
+    private DataFetchListener listener;
+
+    public ArticleRepository(DataFetchListener listener) {
+        this.listener = listener;
+    }
+
+    public interface DataFetchListener{
+        void onReceeived(LiveData<List<Result>> resultList);
+    }
+
     public LiveData<List<Result>> getArticles() {
         Log.d(TAG, "getResults");
         ApiService.getService().getArticles("test", "thumbnail", 1, 20).enqueue(new Callback<Example>() {
@@ -29,6 +39,7 @@ public class ArticleRepository {
                 if (response.isSuccessful()) {
                     Log.d(TAG, "isSuccessful");
                     articles.setValue(response.body().getResponse().getResults());
+                    listener.onReceeived(articles);
                     //TODO; CLEAR
                     for (Result result : articles.getValue()) {
                         Log.d(TAG, result.getSectionName());
