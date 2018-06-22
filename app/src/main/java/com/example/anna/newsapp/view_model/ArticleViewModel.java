@@ -12,32 +12,22 @@ import com.example.anna.newsapp.model.repository.ArticleRepository;
 
 import java.util.List;
 
-public class ArticleViewModel extends ViewModel implements ArticleRepository.DataFetchListener {
+public class ArticleViewModel extends ViewModel {
     public static final String TAG = "ArticleViewModel";
     private LiveData<List<Result>> articleList;
     private ArticleRepository articleRepository;
 
 
-    public LiveData<List<Result>> getArticleList() {
+    public LiveData<List<Result>> getArticleList(int pageNumber) {
         Log.d(TAG, "getArticleList");
         //TODO; add Dagger 2
+
+        Log.d(TAG, "getArticleList");
+        if (articleRepository == null) {
+            articleRepository = new ArticleRepository();
+        }
+        articleList = articleRepository.getArticles(pageNumber);
         return articleList;
     }
 
-    public void init() {
-        Log.d(TAG, "getArticleList");
-        if (articleList != null) {
-            return;
-        }
-        if (articleRepository == null) {
-            articleRepository = new ArticleRepository(this);
-        }
-        articleList = articleRepository.getArticles();
-    }
-
-    @Override
-    public void onReceeived(LiveData<List<Result>> resultList) {
-        articleList = resultList;
-
-    }
 }

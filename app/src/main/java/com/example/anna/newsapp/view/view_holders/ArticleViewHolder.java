@@ -32,13 +32,20 @@ public class ArticleViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bindData(Result result) {
-        titleText.setText(result.getWebTitle());
-        categoryText.setText(result.getSectionName());
-        Log.d(TAG, result.getSectionName());
+        if(result.getFields() == null) return;
+        if (result.getWebTitle() != null) {
+            titleText.setText(result.getWebTitle());
+        }
 
-        Picasso.get()
-                .load(result.getFields().getThumbnail())
-                .placeholder(R.drawable.placeholder)
-                .into(thumbnailImage);
+        if (result.getSectionName() != null) {
+            categoryText.setText(result.getSectionName());
+        }
+
+        if (result.getFields().getThumbnail() != null) {
+            Picasso.get()
+                    .load(result.getFields().getThumbnail())
+                    .placeholder(R.drawable.placeholder)
+                    .into(thumbnailImage);
+        }
     }
 }

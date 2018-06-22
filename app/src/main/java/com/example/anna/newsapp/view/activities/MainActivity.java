@@ -21,7 +21,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements ArticleRepository.DataFetchListener {
+public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.recycler)
     RecyclerView mRecyclerView;
@@ -29,12 +29,17 @@ public class MainActivity extends AppCompatActivity implements ArticleRepository
     @BindView(R.id.progress_pageing)
     ProgressBar mProgressBar;
 
+    @BindView(R.id.progress_main)
+    ProgressBar mProgressBarMain;
+
     private ArticleAdapter mAdapter;
     private LinearLayoutManager mLayoutManager;
     private static final String TAG = "MainActivity";
     private ArticleViewModel mArticleViewModel;
     private List<Result> mArticles;
     private boolean isFirstLoad = true;
+    private boolean mIsLoading;
+    private int mPageNumber = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +47,13 @@ public class MainActivity extends AppCompatActivity implements ArticleRepository
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        mProgressBarMain.setVisibility(View.VISIBLE);
         mArticleViewModel = ViewModelProviders.of(this).get(ArticleViewModel.class);
-        mArticleViewModel.init();
-        mArticleViewModel.getArticleList().observe(this, articles -> {
-            Log.d(TAG, "List<Result> onChanged");
+        mArticleViewModel.getArticleList(mPageNumber).observe(this, articles -> {
+            Log.d(TAG, "List<Result> onChanged!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            mProgressBar.setVisibility(View.GONE);
+            mProgressBarMain.setVisibility(View.GONE);
+            mIsLoading = false;
             mArticles = articles;
             if(isFirstLoad){
                 initAdapter();
@@ -59,11 +67,12 @@ public class MainActivity extends AppCompatActivity implements ArticleRepository
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                int lastPosition = mLayoutManager.findLastVisibleItemPosition();
+                int lastPosition = mLayoutManager.findLastCompletelyVisibleItemPosition();
                 Log.d(TAG, "onScrolled - lastPosition: " + lastPosition);
-                if (lastPosition == mLayoutManager.getItemCount() - 1) {
+                if (!mIsLoading && lastPosition == mLayoutManager.getItemCount() - 2) {
                     Log.d(TAG, "onScrolled - End of list?");
                     loadData();
+                    mIsLoading = true;
                 }
             }
         });
@@ -75,7 +84,8 @@ public class MainActivity extends AppCompatActivity implements ArticleRepository
         Log.d(TAG, "loadData");
         if (mArticleViewModel == null) return;
         mProgressBar.setVisibility(View.VISIBLE);
-        mArticleViewModel.getArticleList();
+        mPageNumber++;
+        mArticleViewModel.getArticleList(mPageNumber);
     }
 
     public void initAdapter() {
@@ -85,8 +95,5 @@ public class MainActivity extends AppCompatActivity implements ArticleRepository
         mRecyclerView.setLayoutManager(mLayoutManager);
     }
 
-    @Override
-    public void onReceeived(LiveData<List<Result>> resultList) {
 
-    }
 }
