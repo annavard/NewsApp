@@ -1,11 +1,14 @@
 package com.example.anna.newsapp.view_model;
 
+import android.app.Application;
+import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.arch.paging.DataSource;
 import android.arch.paging.LivePagedListBuilder;
 import android.arch.paging.PagedList;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.anna.newsapp.model.models.Result;
@@ -14,20 +17,26 @@ import com.example.anna.newsapp.model.repository.ArticleRepository;
 
 import java.util.List;
 
-public class ArticleViewModel extends ViewModel {
+public class ArticleViewModel extends AndroidViewModel {
     public static final String TAG = "ArticleViewModel";
-    private MutableLiveData<List<Result>> articleList;
-    private MutableLiveData<List<Photo>> photos;
-    private ArticleRepository articleRepository;
+    private LiveData<List<com.example.anna.newsapp.model.db.Photo>> photos;
+    private ArticleRepository mArticleRepository;
 
-
-    public LiveData<List<Photo>> getPhotos() {
-        Log.d(TAG, "getArticleList");
-        //TODO; add Dagger 2
-        if (articleRepository == null) {
-            articleRepository = new ArticleRepository();
+    public ArticleViewModel(@NonNull Application application) {
+        super(application);
+        Log.d(TAG, "ArticleViewModel public constructor");
+        if (mArticleRepository == null) {
+            mArticleRepository = new ArticleRepository(application);
         }
-        photos = articleRepository.getPhotos();
+    }
+
+
+    public LiveData<List<com.example.anna.newsapp.model.db.Photo>> getPhotos() {
+        Log.d(TAG, "getPhotos");
+        //TODO; add Dagger 2
+        mArticleRepository.loadPhotos();
+        photos = mArticleRepository.getPhotos();
         return photos;
     }
+
 }

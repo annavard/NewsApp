@@ -18,15 +18,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ArticleAdapter extends RecyclerView.Adapter<ArticleViewHolder> {
-//    private List<Result> mResultList;
-    private List<Photo> mResultList;
+    private List<com.example.anna.newsapp.model.db.Photo> mResultList;
 
 
-//    public ArticleAdapter(List<Result> resultList) {
-//        mResultList = resultList;
-//    }
-
-    public ArticleAdapter(List<Photo> resultList) {
+    public ArticleAdapter(List<com.example.anna.newsapp.model.db.Photo> resultList) {
         mResultList = resultList;
     }
 
@@ -38,8 +33,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ArticleViewHolder holder, int position) {
-//        Result result = mResultList.get(position);
-        Photo result = mResultList.get(position);
+        com.example.anna.newsapp.model.db.Photo result = mResultList.get(position);
         holder.bindData(result);
     }
 
@@ -49,12 +43,8 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleViewHolder> {
         return mResultList.size();
     }
 
-//    public void updateList(List<Result> newList){
-//        mResultList = newList;
-//        notifyDataSetChanged();
-//    }
 
-    public void updateList(List<Photo> newList){
+    public void updateList(List<com.example.anna.newsapp.model.db.Photo> newList){
         mResultList.addAll(newList);
         notifyDataSetChanged();
     }

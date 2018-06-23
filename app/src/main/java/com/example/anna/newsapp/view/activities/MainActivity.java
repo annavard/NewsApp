@@ -33,10 +33,10 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private ArticleViewModel mArticleViewModel;
     private List<Result> mArticles;
-    private List<Photo> mPhotos;
+    private List<com.example.anna.newsapp.model.db.Photo> mPhotos;
     private boolean mIsLoading;
     private boolean mIsInitialCall = true;
-    private int mPageNumber;
+    public  static int mPageNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,16 +45,19 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         mArticleViewModel = ViewModelProviders.of(this).get(ArticleViewModel.class);
-//        mLiveArticles = loadData();
         mArticleViewModel.getPhotos().observe(this, photos -> {
             Log.d(TAG, "onChanged!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             mProgressBar.setVisibility(View.GONE);
             mPhotos = photos;
+            for(com.example.anna.newsapp.model.db.Photo photo : photos){
+                Log.d(TAG, "Title: " + photo.getTitle());
+            }
             if (mIsInitialCall) {
                 initiateAdapter();
                 mIsInitialCall = false;
             } else {
-                mAdapter.updateList(mPhotos.subList(mPageNumber, mPageNumber + 10));
+                mAdapter.updateList(mPhotos);
+//                mAdapter.updateList(mPhotos.subList(mPageNumber, mPageNumber + 10));
             }
         });
 
@@ -75,8 +78,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void initiateAdapter() {
-        List<Photo> shrinkedList = mPhotos.subList(mPageNumber, mPageNumber + 10);
-        mAdapter = new ArticleAdapter(shrinkedList);
+//        List<com.example.anna.newsapp.model.db.Photo> shrinkedList = mPhotos.subList(mPageNumber, mPageNumber + 10);
+        mAdapter = new ArticleAdapter(mPhotos);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(mLayoutManager);

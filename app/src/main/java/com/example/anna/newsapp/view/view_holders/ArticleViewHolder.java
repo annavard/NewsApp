@@ -32,24 +32,13 @@ public class ArticleViewHolder extends RecyclerView.ViewHolder {
         ButterKnife.bind(this, itemView);
     }
 
-//    public void bindData(Result result) {
-//        titleText.setText(result.getWebTitle());
-//        categoryText.setText(result.getSectionName());
-//        Log.d(TAG, result.getSectionName());
-//
-//        Picasso.get()
-//                .load(result.getFields().getThumbnail())
-//                .placeholder(R.drawable.placeholder)
-//                .into(thumbnailImage);
-//    }
 
-    public void bindData(Photo result) {
-        Log.d(TAG, result.getAlbumId().toString());
+    public void bindData(com.example.anna.newsapp.model.db.Photo result) {
         categoryText.setText(result.getAlbumId().toString());
         titleText.setText(result.getTitle());
 
         Picasso.get()
-                .load(result.getThumbnailUrl())
+                .load(result.getImageURL())
                 .placeholder(R.drawable.placeholder)
                 .into(thumbnailImage);
     }
