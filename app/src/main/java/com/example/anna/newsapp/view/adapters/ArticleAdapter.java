@@ -1,9 +1,6 @@
 package com.example.anna.newsapp.view.adapters;
 
-import android.arch.paging.PagedListAdapter;
-import android.content.Context;
 import android.support.annotation.NonNull;
-import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,24 +8,34 @@ import android.view.ViewGroup;
 
 import com.example.anna.newsapp.R;
 import com.example.anna.newsapp.model.models.Result;
+import com.example.anna.newsapp.view.activities.MainActivity;
 import com.example.anna.newsapp.view.view_holders.ArticleViewHolder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ArticleAdapter extends RecyclerView.Adapter<ArticleViewHolder> {
     private List<Result> mResultList;
+    private ArticleViewHolder.ItemClickListener mListener;
+    private boolean mIsHorisontal;
 
 
-    public ArticleAdapter(List<Result> resultList) {
+    public ArticleAdapter(List<Result> resultList, ArticleViewHolder.ItemClickListener listener, boolean isHorisontal) {
         mResultList = resultList;
+        mListener = listener;
+        mIsHorisontal = isHorisontal;
     }
 
 
     @Override
     public ArticleViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_article, parent, false);
-        return new ArticleViewHolder(itemView);
+        View itemView;
+        if (mIsHorisontal) {
+            itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_article_horizontal, parent, false);
+        } else {
+            itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_article, parent, false);
+        }
+
+        return new ArticleViewHolder(itemView, mListener);
     }
 
     @Override
@@ -43,7 +50,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleViewHolder> {
         return mResultList.size();
     }
 
-    public void updateData(List<Result> articles){
+    public void updateData(List<Result> articles) {
         mResultList.addAll(articles);
         notifyDataSetChanged();
     }

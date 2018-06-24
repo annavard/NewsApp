@@ -1,10 +1,14 @@
 
 package com.example.anna.newsapp.model.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Result {
+@org.parceler.Parcel(org.parceler.Parcel.Serialization.BEAN)
+public class Result{
 
     @SerializedName("id")
     @Expose
@@ -138,5 +142,6 @@ public class Result {
     public void setPillarName(String pillarName) {
         this.pillarName = pillarName;
     }
+
 
 }
