@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,35 +7,20 @@
     android:background="@color/light_middle_gray"
     tools:context=".view.activities.MainActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/light_middle_gray"
-        app:elevation="0dp"
-        android:gravity="center">
-
-        <ScrollView
-            android:id="@+id/scroll_horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recycler_horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </ScrollView>
-    </android.support.design.widget.AppBarLayout>
-
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_below="@+id/recycler_horizontal"/>
 
 
     <ProgressBar
@@ -68,4 +53,4 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-</android.support.design.widget.CoordinatorLayout>
+</RelativeLayout>
