@@ -1,5 +1,6 @@
 package com.example.anna.newsapp.view.activities;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Parcelable;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 import com.example.anna.newsapp.R;
 import com.example.anna.newsapp.model.ArticleDataHolder;
 import com.example.anna.newsapp.model.DummyData;
+import com.example.anna.newsapp.model.db.Article;
 import com.example.anna.newsapp.model.models.Result;
 import com.example.anna.newsapp.view.adapters.ArticleAdapter;
 import com.example.anna.newsapp.view.view_holders.ArticleViewHolder;
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
     private LinearLayoutManager mLayoutManager;
     private LinearLayoutManager mLayoutManagerHorizontal;
      private ArticleViewModel mArticleViewModel;
-    private List<Result> mArticles;
+    private List<Article> mArticles;
     private boolean isFirstLoad = true;
     private boolean mIsLoading;
     private int mPageNumber = 1;
@@ -63,37 +65,38 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        serviceUnavailableModeOn();
+//        serviceUnavailableModeOn();
 
-//        mProgressBarMain.setVisibility(View.VISIBLE);
-//        mArticleViewModel = ViewModelProviders.of(this).get(ArticleViewModel.class);
-//        mArticleViewModel.getArticleList(mPageNumber).observe(this, articles -> {
-//            Log.d(TAG, "List<Result> onChanged!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-//            mProgressBar.setVisibility(View.GONE);
-//            mProgressBarMain.setVisibility(View.GONE);
-//            mIsLoading = false;
-//            mArticles = articles;
-//            if(isFirstLoad){
-//                initAdapter();
-//                isFirstLoad = false;
-//            }else{
-//                mAdapter.updateData(mArticles);
-//            }
-//
-//        });
-//
-//        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-//                int lastPosition = mLayoutManager.findLastCompletelyVisibleItemPosition();
-//                Log.d(TAG, "onScrolled - lastPosition: " + lastPosition);
-//                if (!mIsLoading && lastPosition == mLayoutManager.getItemCount() - 2) {
-//                    Log.d(TAG, "onScrolled - End of list?");
-//                    loadData();
-//                    mIsLoading = true;
-//                }
-//            }
-//        });
+        mProgressBarMain.setVisibility(View.VISIBLE);
+        mArticleViewModel = ViewModelProviders.of(this).get(ArticleViewModel.class);
+        mArticleViewModel.getArticleList(mPageNumber).observe(this, articles -> {
+            Log.d(TAG, "List<Result> onChanged!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            mProgressBar.setVisibility(View.GONE);
+            mProgressBarMain.setVisibility(View.GONE);
+            mIsLoading = false;
+            mArticles = articles;
+            if(isFirstLoad){
+                initAdapter();
+                isFirstLoad = false;
+            }else{
+                mAdapter.updateData(mArticles);
+            }
+            initHorizontalAdapter();
+
+        });
+
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                int lastPosition = mLayoutManager.findLastCompletelyVisibleItemPosition();
+                Log.d(TAG, "onScrolled - lastPosition: " + lastPosition);
+                if (!mIsLoading && lastPosition == mLayoutManager.getItemCount() - 2) {
+                    Log.d(TAG, "onScrolled - End of list?");
+                    loadData();
+                    mIsLoading = true;
+                }
+            }
+        });
 
     }
 
@@ -142,10 +145,10 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
 
 
     @Override
-    public void itemClicked(Result result, ImageView imageView, TextView sectionText, TextView titleText) {
+    public void itemClicked(Article article, ImageView imageView, TextView sectionText, TextView titleText) {
         Log.d(TAG, "RecyclerView itemClicked" );
         Intent intent = new Intent(this, DetailsActivity.class);
-        Parcelable wrappedResult = Parcels.wrap(result);
+        Parcelable wrappedResult = Parcels.wrap(article);
         intent.putExtra(ARTICLE_KEY, wrappedResult);
 
         Pair sectionAnim = Pair.create(sectionText, "category_transition");

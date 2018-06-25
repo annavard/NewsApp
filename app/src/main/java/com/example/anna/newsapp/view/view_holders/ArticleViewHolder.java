@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.anna.newsapp.R;
+import com.example.anna.newsapp.model.db.Article;
 import com.example.anna.newsapp.model.models.Result;
 import com.squareup.picasso.Picasso;
 
@@ -29,7 +30,7 @@ public class ArticleViewHolder extends RecyclerView.ViewHolder {
 
     private ItemClickListener mListener;
 
-    private Result mResult;
+    private Article mArticle;
 
 
     public ArticleViewHolder(View itemView, ItemClickListener listener) {
@@ -38,20 +39,19 @@ public class ArticleViewHolder extends RecyclerView.ViewHolder {
         mListener = listener;
     }
 
-    public void bindData(Result result) {
-        mResult = result;
-        if(result.getFields() == null) return;
-        if (result.getWebTitle() != null) {
-            titleText.setText(result.getWebTitle());
+    public void bindData(Article article) {
+        mArticle = article;
+        if (article.getWebTitle() != null) {
+            titleText.setText(article.getWebTitle());
         }
 
-        if (result.getSectionName() != null) {
-            categoryText.setText(result.getSectionName());
+        if (article.getSectionName() != null) {
+            categoryText.setText(article.getSectionName());
         }
 
-        if (result.getFields().getThumbnail() != null) {
+        if (article.getThumbnail() != null) {
             Picasso.get()
-                    .load(result.getFields().getThumbnail())
+                    .load(article.getThumbnail())
                     .placeholder(R.drawable.placeholder)
                     .into(thumbnailImage);
         }
@@ -59,10 +59,10 @@ public class ArticleViewHolder extends RecyclerView.ViewHolder {
 
     @OnClick(R.id.cardView)
     void articleItemClicked(){
-        mListener.itemClicked(mResult, thumbnailImage, categoryText, titleText);
+        mListener.itemClicked(mArticle, thumbnailImage, categoryText, titleText);
     }
 
     public interface ItemClickListener {
-        void itemClicked(Result result, ImageView imageView, TextView sectionText, TextView titleText);
+        void itemClicked(Article article, ImageView imageView, TextView sectionText, TextView titleText);
     }
 }
