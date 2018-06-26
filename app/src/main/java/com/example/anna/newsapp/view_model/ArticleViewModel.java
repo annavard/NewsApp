@@ -3,6 +3,7 @@ package com.example.anna.newsapp.view_model;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.arch.paging.DataSource;
 import android.arch.paging.LivePagedListBuilder;
@@ -34,9 +35,9 @@ public class ArticleViewModel extends AndroidViewModel {
         Log.d(TAG, "getArticleList");
 
         articleList = articleRepository.getArticles();
-        for(Article article : articleList.getValue()){
-            Log.d(TAG, article.getWebTitle());
-        }
+//        for (Article article : articleList.getValue()) {
+//            Log.d(TAG, article.getWebTitle());
+//        }
         return articleList;
     }
 

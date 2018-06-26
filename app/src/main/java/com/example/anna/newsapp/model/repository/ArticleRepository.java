@@ -27,7 +27,7 @@ public class ArticleRepository {
 
     private ArticleDao mArticleDao;
 
-//    private MutableLiveData<List<Article>> articles;
+    private MutableLiveData<List<Article>> articles;
 
     public ArticleRepository(Application application) {
         ArticleRoomDatabase db = ArticleRoomDatabase.getInstance(application);
@@ -60,8 +60,25 @@ public class ArticleRepository {
         populateDb(DummyData.populateData());
     }
 
-    public LiveData<List<Article>> getArticles() {
-        LiveData<List<Article>> articles  =  mArticleDao.getAllArticles();
+    public MutableLiveData<List<Article>> getArticles() {
+              if(articles == null){
+          articles = new MutableLiveData<>();
+      }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                List<Article> result = mArticleDao.getAllArticles();
+                articles.postValue(result);
+//                for(Article article : articles){
+//                    Log.d(TAG, article.getWebTitle());
+//                }
+
+                for(Article article : result){
+                    Log.d(TAG, article.getWebTitle());
+                }
+            }
+        }).start();
+
         return articles;
     }
 
@@ -73,6 +90,13 @@ public class ArticleRepository {
         }
 
         new insertAsyncTask(mArticleDao).execute(articleArray);
+
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                mArticleDao.insertAll(articles);
+//            }
+//        }).start();
     }
 
 
@@ -103,5 +127,7 @@ public class ArticleRepository {
             articleDao.insertAll(articles);
             return null;
         }
+
+
     }
 }
