@@ -5,7 +5,9 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
-@org.parceler.Parcel(org.parceler.Parcel.Serialization.BEAN)
+import org.parceler.Parcel;
+
+@Parcel(Parcel.Serialization.BEAN)
 @Entity(tableName = "articles")
 public class Article {
 

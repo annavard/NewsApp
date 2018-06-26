@@ -60,8 +60,9 @@ public class ArticleRepository {
         populateDb(DummyData.populateData());
     }
 
-    public LiveData<List<Article>> getArticles(){
-        return mArticleDao.getAllArticles();
+    public LiveData<List<Article>> getArticles() {
+        LiveData<List<Article>> articles  =  mArticleDao.getAllArticles();
+        return articles;
     }
 
     public void populateDb(List<Article> articles) {
@@ -70,6 +71,7 @@ public class ArticleRepository {
         for (int i = 0; i < articles.size(); i++) {
             articleArray[i] = articles.get(i);
         }
+
         new insertAsyncTask(mArticleDao).execute(articleArray);
     }
 
@@ -97,6 +99,7 @@ public class ArticleRepository {
 
         @Override
         protected Void doInBackground(Article... articles) {
+            Log.d(TAG, "doInBackground");
             articleDao.insertAll(articles);
             return null;
         }
