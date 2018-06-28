@@ -1,18 +1,19 @@
 package com.example.anna.newsapp.model;
 
+import com.example.anna.newsapp.model.db.Article;
 import com.example.anna.newsapp.model.models.Result;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ArticleDataHolder {
-    private List<Result> articles;
+    private List<Article> articles;
 
-    public List<Result> getArticles() {
+    public List<Article> getArticles() {
         return articles;
     }
 
-    public void setArticles(List<Result> articles) {
+    public void setArticles(List<Article> articles) {
         this.articles = articles;
     }
 

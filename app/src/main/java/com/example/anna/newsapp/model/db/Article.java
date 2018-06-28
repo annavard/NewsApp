@@ -25,6 +25,9 @@ public class Article {
     @ColumnInfo(name = "image_url")
     private String thumbnail;
 
+    @ColumnInfo(name = "pin_state")
+    private boolean isPinned;
+
     @NonNull
     public int getUid() {
         return uid;
@@ -57,4 +60,14 @@ public class Article {
     public void setThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
     }
+
+
+    public boolean getPinned() {
+        return isPinned;
+    }
+
+    public void setPinned(boolean isPinned) {
+        this.isPinned = isPinned;
+    }
+
 }

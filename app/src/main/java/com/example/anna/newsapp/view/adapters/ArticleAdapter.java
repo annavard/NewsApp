@@ -2,6 +2,7 @@ package com.example.anna.newsapp.view.adapters;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,6 +53,7 @@ public class ArticleAdapter extends RecyclerView.Adapter<ArticleViewHolder> {
     }
 
     public void updateData(List<Article> articles) {
+        Log.d(MainActivity.TAG, "updateData");
         mArticles.addAll(articles);
         notifyDataSetChanged();
     }

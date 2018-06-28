@@ -33,8 +33,9 @@ public class ArticleViewModel extends AndroidViewModel {
 
     public LiveData<List<Article>> getArticleList(int pageNumber) {
         Log.d(TAG, "getArticleList");
+        Log.d(TAG, "getArticleList - pageNumber: " + pageNumber);
 
-        articleList = articleRepository.getArticles();
+        articleList = articleRepository.getArticles(pageNumber);
 //        for (Article article : articleList.getValue()) {
 //            Log.d(TAG, article.getWebTitle());
 //        }

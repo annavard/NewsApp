@@ -52,7 +52,7 @@ public class ArticleViewHolder extends RecyclerView.ViewHolder {
         if (article.getThumbnail() != null) {
             Picasso.get()
                     .load(article.getThumbnail())
-                    .placeholder(R.drawable.placeholder)
+                    .placeholder(R.drawable.ic_placeholder)
                     .into(thumbnailImage);
         }
     }

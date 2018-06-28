@@ -5,18 +5,14 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import com.example.anna.newsapp.R;
 import com.example.anna.newsapp.model.ArticleDataHolder;
-import com.example.anna.newsapp.model.models.Result;
+import com.example.anna.newsapp.model.db.Article;
 import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,8 +38,7 @@ public class DetailsActivity extends AppCompatActivity {
     @BindView(R.id.text_title)
     TextView titleText;
 
-    private Result mResult;
-    private boolean mIsPinned;
+    private Article mArticle;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,12 +47,12 @@ public class DetailsActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
 
-        mResult = Parcels.unwrap(getIntent().getParcelableExtra(MainActivity.ARTICLE_KEY));
-        if (mResult != null) {
-            sectionText.setText(mResult.getSectionName());
-            titleText.setText(mResult.getWebTitle());
+        mArticle = Parcels.unwrap(getIntent().getParcelableExtra(MainActivity.ARTICLE_KEY));
+        if (mArticle != null) {
+            sectionText.setText(mArticle.getSectionName());
+            titleText.setText(mArticle.getWebTitle());
 
-            Picasso.get().load(mResult.getFields().getThumbnail())
+            Picasso.get().load(mArticle.getThumbnail())
                     .placeholder(R.drawable.placeholder)
                     .into(mainImage);
         }
@@ -83,20 +78,19 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.image_pin)
-    public void onPinClicked(){
+    public void onPinClicked() {
         Log.d(TAG, "onPinClicked");
-        if(mIsPinned){
-//            pinImage.setImageResource(R.drawable.ic_checked);
-            pinImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_checked));
-            ArticleDataHolder.getInstance().getArticles().add(mResult);
-        }else {
-//            pinImage.setImageResource(R.drawable.icon_pin);
-            pinImage.setImageDrawable(getResources().getDrawable(R.drawable.icon_pin));
-            ArticleDataHolder.getInstance().getArticles().remove(mResult);
+        Log.d(TAG, "isPinned - " + mArticle.getPinned());
+        pinImage.setImageResource(R.drawable.ic_checked);
+        if (!mArticle.getPinned()) {
+            pinImage.setImageResource(R.drawable.ic_checked);
+            mArticle.setPinned(true);
+            ArticleDataHolder.getInstance().getArticles().add(mArticle);
+
+            return;
         }
-
-
-
+        pinImage.setImageResource(R.drawable.icon_pin);
+        ArticleDataHolder.getInstance().getArticles().remove(mArticle);
     }
 
 }

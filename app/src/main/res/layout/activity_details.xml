@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/placeholder"
+        android:src="@drawable/ic_placeholder"
         android:transitionName="details_transition" />
 
 
@@ -53,7 +53,6 @@
         android:layout_marginTop="16dp"
         android:elevation="20dp"
         android:src="@drawable/icon_pin"
-        android:tint="@color/yellow"
         app:layout_constraintEnd_toEndOf="@+id/image"
         app:layout_constraintTop_toTopOf="@+id/image" />
 
