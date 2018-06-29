@@ -121,7 +121,7 @@ public class ArticleRepository {
         Log.d(TAG, "populateDb");
         int itemCount = getItemCount();
         Log.d(TAG, "itemCount: " + itemCount);
-        if (getItemCount() > PAGE_SIZE * 2) {
+        if (getItemCount() >= PAGE_SIZE * 2) {
             Log.d(TAG, "getItemCount() > PAGE_SIZE * 2");
             new Thread(() -> mArticleDao.deleteAll()).start();
             int afterItemCount = getItemCount();
