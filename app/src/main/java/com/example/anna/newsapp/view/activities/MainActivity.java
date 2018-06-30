@@ -1,5 +1,6 @@
 package com.example.anna.newsapp.view.activities;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
@@ -10,6 +11,7 @@ import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -28,6 +30,7 @@ import com.example.anna.newsapp.view_model.ArticleViewModel;
 
 import org.parceler.Parcels;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -36,6 +39,7 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity implements ArticleViewHolder.ItemClickListener {
 
     public static final String TAG = "MainActivity";
+    public static final int REQUEST_CODE = 1;
     public static final String ARTICLE_KEY = "article_key";
 
     @BindView(R.id.recycler)
@@ -60,17 +64,14 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
     private boolean isFirstLoad = true;
     private boolean mIsLoading;
     private int mPageNumber = 1;
-    private boolean isHorisontal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
-//        serviceUnavailableModeOn();
-
         mProgressBarMain.setVisibility(View.VISIBLE);
+
         mArticleViewModel = ViewModelProviders.of(this).get(ArticleViewModel.class);
         mArticleViewModel.getArticleList(mPageNumber).observe(this, articles -> {
             Log.d(TAG, "List<Result> onChanged!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -78,23 +79,18 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
             mProgressBarMain.setVisibility(View.GONE);
             mIsLoading = false;
             mArticles = articles;
+
             if (isFirstLoad) {
                 initAdapter();
+                initHorizontalAdapter();
                 isFirstLoad = false;
             } else {
-//                mAdapter.updateData(mArticles);
-                mRecyclerView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mAdapter.updateData(mArticles);
-                    }
+                mRecyclerView.post(() -> {
+                    mAdapter.updateData(mArticles);
                 });
             }
-            initHorizontalAdapter();
-
         });
 
-//               mArticleViewModel.getArticleList(mPageNumber).observe(this, observer);
 
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -110,13 +106,6 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
             }
         });
 
-    }
-
-    private void serviceUnavailableModeOn() {
-        mProgressBarMain.setVisibility(View.GONE);
-        mArticles = DummyData.initData();
-        initAdapter();
-        initHorizontalAdapter();
     }
 
 
@@ -135,27 +124,20 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
         mRecyclerView.setAdapter(mAdapter);
         mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-
-
+        ((DefaultItemAnimator) mRecyclerView.getItemAnimator()).setSupportsChangeAnimations(false);
     }
 
     public void initHorizontalAdapter() {
         Log.d(TAG, "initHorizontalAdapter");
-        List<Article> articles = ArticleDataHolder.getInstance().getArticles();
-        if (articles == null || articles.size() == 0) {
-            Log.d(TAG, "No Pinned items");
-            isHorisontal = false;
-            return;
-        }
-        Log.d(TAG, "Pinned items exist!");
-        isHorisontal = true;
-        mAdapterHorizontal = new ArticleAdapter(articles, this::itemClicked, isHorisontal);
+        mPinnedArticles = new ArrayList<>();
+        mAdapterHorizontal = new ArticleAdapter(mPinnedArticles, this::itemClicked, true);
         mRecyclerHorizontal.setAdapter(mAdapterHorizontal);
         mLayoutManagerHorizontal = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         mRecyclerHorizontal.setLayoutManager(mLayoutManagerHorizontal);
     }
 
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void itemClicked(Article article, ImageView imageView, TextView sectionText, TextView titleText) {
         Log.d(TAG, "RecyclerView itemClicked");
@@ -168,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
         Pair imageAnim = Pair.create(imageView, "details_transition");
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this, sectionAnim, titleAnim, imageAnim);
-        startActivity(intent, options.toBundle());
+        startActivityForResult(intent, REQUEST_CODE, options.toBundle());
 
     }
 
@@ -194,9 +176,13 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
-        if (mArticles != null) {
-            initHorizontalAdapter();
-        }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
     }
 
     @Override
@@ -205,4 +191,37 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
         super.onBackPressed();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "onActivityResult");
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
+            if (data != null) {
+                Article pinned = Parcels.unwrap(data.getParcelableExtra(ARTICLE_KEY));
+                Log.d(TAG, "onActivityResult pinned - uid: " + pinned.getUid());
+                Log.d(TAG, "onActivityResult pinned - title: " + pinned.getWebTitle());
+                Log.d(TAG, "onActivityResult pinned: " + pinned.getPinned());
+                pinStateChangedUpdate(pinned);
+            }
+        }
+
+
+    }
+
+    private void pinStateChangedUpdate(Article pinned) {
+        Log.d(TAG, "pinStateChangedUpdate");
+
+        if (pinned.getPinned()) {
+            mAdapterHorizontal.addItem(pinned);
+        } else if (mPinnedArticles.size() > 0) {
+            mAdapterHorizontal.removeItem(pinned);
+        }
+
+
+
+        mAdapter.updateItem(pinned);
+    }
+
+
 }
+

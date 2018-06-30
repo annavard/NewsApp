@@ -1,6 +1,7 @@
 package com.example.anna.newsapp.view.view_holders;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,6 +41,7 @@ public class ArticleViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void bindData(Article article) {
+        Log.d(TAG, "bindData - pinned: " + article);
         mArticle = article;
         if (article.getWebTitle() != null) {
             titleText.setText(article.getWebTitle());

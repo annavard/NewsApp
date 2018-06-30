@@ -28,6 +28,16 @@ public class Article {
     @ColumnInfo(name = "pin_state")
     private boolean isPinned;
 
+    @Override
+    public boolean equals(Object obj) {
+        if (sectionName.equals(((Article) obj).getSectionName())
+                && webTitle.equals(((Article) obj).getWebTitle())
+                && thumbnail.equals(((Article) obj).getThumbnail())) {
+            return true;
+        }
+        return false;
+    }
+
     @NonNull
     public int getUid() {
         return uid;

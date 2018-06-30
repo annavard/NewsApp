@@ -47,16 +47,16 @@ public class ArticleRepository {
 
     public LiveData<List<Article>> getArticles(int page) {
         Log.d(TAG, "getArticles");
-        if (NetworkUtils.isOnline(mContext)) {
-            Log.d(TAG, "isOnline");
-            mArticles = loadFromNetwork(page);
-        } else {
-            Log.d(TAG, "is NOT Online");
-            mArticles = loadFromDB(page);
-        }
-//        List<Article> articles = DummyData.initData();
-//        mArticles.setValue(articles);
-//        populateDb(articles);
+//        if (NetworkUtils.isOnline(mContext)) {
+//            Log.d(TAG, "isOnline");
+//            mArticles = loadFromNetwork(page);
+//        } else {
+//            Log.d(TAG, "is NOT Online");
+//            mArticles = loadFromDB(page);
+//        }
+        List<Article> articles = DummyData.initData();
+        mArticles.setValue(articles);
+        populateDb(articles);
         return mArticles;
     }
 
@@ -86,8 +86,8 @@ public class ArticleRepository {
     public MutableLiveData<List<Article>> loadFromDB(int page) {
         Log.d(TAG, "loadFromDB");
         Log.d(TAG, "page - " + page);
-        if(page > 1) {
-            return  null;
+        if (page > 1) {
+            return null;
 //            mArticles.removeObservers(MainActivity.this);
         }
         new Thread(() -> {
@@ -99,7 +99,7 @@ public class ArticleRepository {
         return mArticles;
     }
 
-    private int getItemCount(){
+    private int getItemCount() {
         final int[] itemCount = new int[1];
         new Thread(new Runnable() {
             @Override
@@ -128,6 +128,15 @@ public class ArticleRepository {
             Log.d(TAG, "afterItemCount - " + afterItemCount);
         }
         new insertAsyncTask(mArticleDao).execute(ModelUtils.toArray(articles));
+    }
+
+    public void savePinned(Article article) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mArticleDao.savePinned(article);
+            }
+        }).start();
     }
 
 

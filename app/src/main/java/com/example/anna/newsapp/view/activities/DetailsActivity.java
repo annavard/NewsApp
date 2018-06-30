@@ -1,7 +1,12 @@
 package com.example.anna.newsapp.view.activities;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.ImageView;
@@ -10,9 +15,12 @@ import android.widget.TextView;
 import com.example.anna.newsapp.R;
 import com.example.anna.newsapp.model.ArticleDataHolder;
 import com.example.anna.newsapp.model.db.Article;
+import com.example.anna.newsapp.model.repository.ArticleRepository;
 import com.squareup.picasso.Picasso;
 
 import org.parceler.Parcels;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -40,6 +48,9 @@ public class DetailsActivity extends AppCompatActivity {
 
     private Article mArticle;
 
+    private boolean isPinned;
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,8 +64,16 @@ public class DetailsActivity extends AppCompatActivity {
             titleText.setText(mArticle.getWebTitle());
 
             Picasso.get().load(mArticle.getThumbnail())
-                    .placeholder(R.drawable.placeholder)
+                    .placeholder(R.drawable.ic_placeholder)
                     .into(mainImage);
+            if (mArticle.getPinned()) {
+                pinImage.setImageResource(R.drawable.ic_checked);
+            } else {
+                pinImage.setImageResource(R.drawable.icon_pin);
+            }
+
+            isPinned = mArticle.getPinned();
+
         }
 
     }
@@ -80,17 +99,36 @@ public class DetailsActivity extends AppCompatActivity {
     @OnClick(R.id.image_pin)
     public void onPinClicked() {
         Log.d(TAG, "onPinClicked");
-        Log.d(TAG, "isPinned - " + mArticle.getPinned());
         pinImage.setImageResource(R.drawable.ic_checked);
         if (!mArticle.getPinned()) {
             pinImage.setImageResource(R.drawable.ic_checked);
             mArticle.setPinned(true);
             ArticleDataHolder.getInstance().getArticles().add(mArticle);
-
             return;
         }
+        mArticle.setPinned(false);
         pinImage.setImageResource(R.drawable.icon_pin);
         ArticleDataHolder.getInstance().getArticles().remove(mArticle);
     }
 
+
+    private void sendToActivity() {
+        Log.d(TAG, "sendToActivity");
+        Intent intent = new Intent();
+        Parcelable extra = Parcels.wrap(mArticle);
+        intent.putExtra(MainActivity.ARTICLE_KEY, extra);
+        setResult(Activity.RESULT_OK, intent);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if (isStateChanged()) {
+            sendToActivity();
+        }
+    }
+
+    private boolean isStateChanged() {
+        return isPinned != mArticle.getPinned();
+    }
 }
