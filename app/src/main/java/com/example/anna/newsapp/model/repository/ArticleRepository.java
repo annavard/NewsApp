@@ -27,8 +27,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ArticleRepository {
+
     public static final String TAG = "ArticleRepository";
-    public static final int PAGE_SIZE = 5;
     public static final int FIRST_PAGE = 1;
 
     private Context mContext;
@@ -37,7 +37,17 @@ public class ArticleRepository {
 
     private MutableLiveData<List<Article>> mArticles;
 
-    public ArticleRepository(Application application) {
+    public static ArticleRepository INSTANCE;
+
+    public static ArticleRepository getInstance(Application application){
+        if(INSTANCE == null){
+            return  new ArticleRepository(application);
+        }
+
+        return INSTANCE;
+    }
+
+    private ArticleRepository(Application application) {
         Log.d(TAG, "ArticleRepository constructor");
         mContext = application;
         mArticles = new MutableLiveData<>();
@@ -45,54 +55,71 @@ public class ArticleRepository {
         mArticleDao = db.articleDao();
     }
 
-    public LiveData<List<Article>> getArticles(int page) {
-        Log.d(TAG, "getArticles");
-//        if (NetworkUtils.isOnline(mContext)) {
-//            Log.d(TAG, "isOnline");
-//            mArticles = loadFromNetwork(page);
-//        } else {
-//            Log.d(TAG, "is NOT Online");
-//            mArticles = loadFromDB(page);
-//        }
+
+
+    public MutableLiveData<List<Article>> loadFromNetwork(int pageNumber, int pageSize) {
+        Log.d(TAG, "loadFromNetwork - pageNumber: " + pageNumber);
+//        ApiService.getService().getArticles("test", "thumbnail", pageNumber, pageSize).enqueue(new Callback<Example>() {
+//            @Override
+//            public void onResponse(Call<Example> call, Response<Example> response) {
+//                Log.d(TAG, "onResponse");
+//                if (response.isSuccessful()) {
+//                    Log.d(TAG, "isSuccessful");
+//                    List<Article> articles = ModelUtils.pojoToEntity(response.body().getResponse().getResults());
+//                    mArticles.setValue(articles);
+//                    populateDb(articles);
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Example> call, Throwable t) {
+//                Log.d(TAG, "onFailure: " + t.getStackTrace());
+//            }
+//        });
+
         List<Article> articles = DummyData.initData();
-        mArticles.setValue(articles);
+        mArticles.postValue(articles);
         populateDb(articles);
         return mArticles;
     }
 
-    public MutableLiveData<List<Article>> loadFromNetwork(int pageNumber) {
-        Log.d(TAG, "loadFromNetwork - pageNumber: " + pageNumber);
-        ApiService.getService().getArticles("test", "thumbnail", pageNumber, PAGE_SIZE).enqueue(new Callback<Example>() {
-            @Override
-            public void onResponse(Call<Example> call, Response<Example> response) {
-                Log.d(TAG, "onResponse");
-                if (response.isSuccessful()) {
-                    Log.d(TAG, "isSuccessful");
-                    List<Article> articles = ModelUtils.pojoToEntity(response.body().getResponse().getResults());
-                    mArticles.setValue(articles);
-                    populateDb(articles);
-                }
-            }
 
-            @Override
-            public void onFailure(Call<Example> call, Throwable t) {
-                Log.d(TAG, "onFailure: " + t.getStackTrace());
+
+
+
+    public MutableLiveData<List<Article>> loadFromDB(int pageNumber, int pageSize) {
+        Log.d(TAG, "loadFromDB");
+        Log.d(TAG, "pageNumber - " + pageNumber);
+        Log.d(TAG, "pageSize - " + pageSize);
+        new Thread(() -> {
+            List<Article> articles = mArticleDao.getArticles(pageNumber, pageSize);
+            Log.d(TAG, "articles size - " + articles.size());
+            for(Article article : articles){
+                Log.d(TAG, "title: " + article.getWebTitle());
             }
-        });
+            if(articles == null){
+                Log.d(TAG, "loadFromDB articles null");
+                loadFromNetwork(FIRST_PAGE, pageSize);
+            }
+            if(getItemCount() < pageNumber * pageSize){
+                Log.d(TAG, "ItemCount < pageNumber * pageSize");
+                loadFromNetwork(FIRST_PAGE, pageSize);
+            }
+            mArticles.postValue(articles);
+        }).start();
+
         return mArticles;
     }
 
 
-    public MutableLiveData<List<Article>> loadFromDB(int page) {
+    public MutableLiveData<List<Article>> loadFromDB() {
         Log.d(TAG, "loadFromDB");
-        Log.d(TAG, "page - " + page);
-        if (page > 1) {
-            return null;
-//            mArticles.removeObservers(MainActivity.this);
-        }
         new Thread(() -> {
             List<Article> articles = mArticleDao.getAllArticles();
             Log.d(TAG, "articles size - " + articles.size());
+//            if(articles == null){
+//                loadFromNetwork(page);
+//            }
             mArticles.postValue(articles);
         }).start();
 
@@ -121,12 +148,12 @@ public class ArticleRepository {
         Log.d(TAG, "populateDb");
         int itemCount = getItemCount();
         Log.d(TAG, "itemCount: " + itemCount);
-        if (getItemCount() >= PAGE_SIZE * 2) {
-            Log.d(TAG, "getItemCount() > PAGE_SIZE * 2");
-            new Thread(() -> mArticleDao.deleteAll()).start();
-            int afterItemCount = getItemCount();
-            Log.d(TAG, "afterItemCount - " + afterItemCount);
-        }
+//        if (getItemCount() >= PAGE_SIZE * 2) {
+//            Log.d(TAG, "getItemCount() > PAGE_SIZE * 2");
+//            new Thread(() -> mArticleDao.deleteAll()).start();
+//            int afterItemCount = getItemCount();
+//            Log.d(TAG, "afterItemCount - " + afterItemCount);
+//        }
         new insertAsyncTask(mArticleDao).execute(ModelUtils.toArray(articles));
     }
 

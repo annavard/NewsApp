@@ -1,12 +1,12 @@
 package com.example.anna.newsapp.view.activities;
 
 import android.annotation.SuppressLint;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.Observer;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
@@ -21,9 +21,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.anna.newsapp.R;
-import com.example.anna.newsapp.model.ArticleDataHolder;
-import com.example.anna.newsapp.model.DummyData;
 import com.example.anna.newsapp.model.db.Article;
+import com.example.anna.newsapp.model.services.AlarmReceiver;
 import com.example.anna.newsapp.view.adapters.ArticleAdapter;
 import com.example.anna.newsapp.view.view_holders.ArticleViewHolder;
 import com.example.anna.newsapp.view_model.ArticleViewModel;
@@ -41,6 +40,20 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
     public static final String TAG = "MainActivity";
     public static final int REQUEST_CODE = 1;
     public static final String ARTICLE_KEY = "article_key";
+    public static int PAGE_NUMBER = 1;
+    public static final int PAGE_SIZE = 2;
+    public static int START_DELAY = 30 * 1000;
+    public static int PERIOD_INTERVAL = 30 * 1000;
+
+    private ArticleAdapter mAdapter;
+    private ArticleAdapter mAdapterHorizontal;
+    private LinearLayoutManager mLayoutManager;
+    private LinearLayoutManager mLayoutManagerHorizontal;
+    private ArticleViewModel mArticleViewModel;
+    private List<Article> mArticles;
+    private List<Article> mPinnedArticles;
+    private boolean isFirstLoad = true;
+    private boolean mIsLoading;
 
     @BindView(R.id.recycler)
     RecyclerView mRecyclerView;
@@ -54,16 +67,9 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
     @BindView(R.id.progress_main)
     ProgressBar mProgressBarMain;
 
-    private ArticleAdapter mAdapter;
-    private ArticleAdapter mAdapterHorizontal;
-    private LinearLayoutManager mLayoutManager;
-    private LinearLayoutManager mLayoutManagerHorizontal;
-    private ArticleViewModel mArticleViewModel;
-    private List<Article> mArticles;
-    private List<Article> mPinnedArticles;
-    private boolean isFirstLoad = true;
-    private boolean mIsLoading;
-    private int mPageNumber = 1;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +78,16 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
         ButterKnife.bind(this);
         mProgressBarMain.setVisibility(View.VISIBLE);
 
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(pendingIntent);
+        alarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                START_DELAY, PERIOD_INTERVAL, pendingIntent);
+
+
         mArticleViewModel = ViewModelProviders.of(this).get(ArticleViewModel.class);
-        mArticleViewModel.getArticleList(mPageNumber).observe(this, articles -> {
+        mArticleViewModel.getArticles(PAGE_NUMBER, PAGE_SIZE).observe(this, articles -> {
             Log.d(TAG, "List<Result> onChanged!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             mProgressBar.setVisibility(View.GONE);
             mProgressBarMain.setVisibility(View.GONE);
@@ -96,9 +110,9 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 int lastPosition = mLayoutManager.findLastCompletelyVisibleItemPosition();
-                Log.d(TAG, "onScrolled - lastPosition: " + lastPosition);
-                Log.d(TAG, "onScrolled - lastPosition: " + lastPosition);
-                Log.d(TAG, "onScrolled - isLoading: " + mIsLoading);
+//                Log.d(TAG, "onScrolled - lastPosition: " + lastPosition);
+//                Log.d(TAG, "onScrolled - lastPosition: " + lastPosition);
+//                Log.d(TAG, "onScrolled - isLoading: " + mIsLoading);
                 if (!mIsLoading && lastPosition == mLayoutManager.getItemCount() - 1) {
                     Log.d(TAG, "onScrolled - End of list?");
                     loadData();
@@ -114,8 +128,8 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
         if (mArticleViewModel == null) return;
         mProgressBar.setVisibility(View.VISIBLE);
         mIsLoading = true;
-        mPageNumber++;
-        mArticleViewModel.getArticleList(mPageNumber);
+        PAGE_NUMBER++;
+        mArticleViewModel.getArticles(PAGE_NUMBER, PAGE_SIZE);
     }
 
     public void initAdapter() {
@@ -217,11 +231,14 @@ public class MainActivity extends AppCompatActivity implements ArticleViewHolder
             mAdapterHorizontal.removeItem(pinned);
         }
 
-
-
         mAdapter.updateItem(pinned);
     }
 
-
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.d(TAG, "onNewIntent");
+        loadData();
+    }
 }
 

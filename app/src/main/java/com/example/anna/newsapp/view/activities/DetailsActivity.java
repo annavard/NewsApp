@@ -13,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.anna.newsapp.R;
-import com.example.anna.newsapp.model.ArticleDataHolder;
 import com.example.anna.newsapp.model.db.Article;
 import com.example.anna.newsapp.model.repository.ArticleRepository;
 import com.squareup.picasso.Picasso;
@@ -103,12 +102,10 @@ public class DetailsActivity extends AppCompatActivity {
         if (!mArticle.getPinned()) {
             pinImage.setImageResource(R.drawable.ic_checked);
             mArticle.setPinned(true);
-            ArticleDataHolder.getInstance().getArticles().add(mArticle);
             return;
         }
         mArticle.setPinned(false);
         pinImage.setImageResource(R.drawable.icon_pin);
-        ArticleDataHolder.getInstance().getArticles().remove(mArticle);
     }
 
 

@@ -3,43 +3,35 @@ package com.example.anna.newsapp.view_model;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
-import android.arch.paging.DataSource;
-import android.arch.paging.LivePagedListBuilder;
-import android.arch.paging.PagedList;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.anna.newsapp.model.db.Article;
-import com.example.anna.newsapp.model.models.Result;
 import com.example.anna.newsapp.model.repository.ArticleRepository;
+import com.example.anna.newsapp.view.activities.MainActivity;
 
 import java.util.List;
 
 public class ArticleViewModel extends AndroidViewModel {
     public static final String TAG = "ArticleViewModel";
-    private LiveData<List<Article>> articleList;
+    private LiveData<List<Article>> articles;
     private ArticleRepository articleRepository;
 
     public ArticleViewModel(@NonNull Application application) {
         super(application);
         Log.d(TAG, "ArticleViewModel");
-        if (articleRepository == null) {
-            articleRepository = new ArticleRepository(application);
-        }
+        articleRepository = ArticleRepository.getInstance(application);
     }
 
 
-    public LiveData<List<Article>> getArticleList(int pageNumber) {
+    public LiveData<List<Article>> getArticles(int pageNumber, int pageSize) {
         Log.d(TAG, "getArticleList");
-        Log.d(TAG, "getArticleList - pageNumber: " + pageNumber);
+        Log.d(MainActivity.TAG, "ArticleViewModel - getArticleList - pageNumber: " + pageNumber);
 
-        articleList = articleRepository.getArticles(pageNumber);
-//        for (Article article : articleList.getValue()) {
+        articles = articleRepository.loadFromDB(pageNumber, pageSize);
+//        for (Article article : articles.getValue()) {
 //            Log.d(TAG, article.getWebTitle());
 //        }
-        return articleList;
+        return articles;
     }
-
 }

@@ -12,15 +12,22 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".view.activities.MainActivity">
+        <activity android:name=".view.activities.MainActivity"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".view.activities.DetailsActivity">
-        </activity>
+        <activity android:name=".view.activities.DetailsActivity" />
+
+        <service
+            android:name=".model.services.ArticleJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        <service android:name=".model.services.ArticleIntentService" />
+
+        <receiver android:name=".model.services.AlarmReceiver" />
     </application>
 
 </manifest>

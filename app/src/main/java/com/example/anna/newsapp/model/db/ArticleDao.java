@@ -32,4 +32,6 @@ public interface ArticleDao {
     void savePinned(Article article);
 
 
+    @Query("SELECT * FROM articles LIMIT :pageNumber, :pageSize")
+    List<Article> getArticles(int pageNumber, int pageSize);
 }
