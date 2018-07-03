@@ -29,9 +29,10 @@ public class ArticleViewModel extends AndroidViewModel {
         Log.d(MainActivity.TAG, "ArticleViewModel - getArticleList - pageNumber: " + pageNumber);
 
         articles = articleRepository.loadFromDB(pageNumber, pageSize);
-//        for (Article article : articles.getValue()) {
-//            Log.d(TAG, article.getWebTitle());
-//        }
         return articles;
+    }
+
+    public void savePinnedItem(Article pinned) {
+        articleRepository.savePinned(pinned);
     }
 }

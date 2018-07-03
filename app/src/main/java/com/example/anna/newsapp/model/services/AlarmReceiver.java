@@ -22,6 +22,5 @@ public class AlarmReceiver extends BroadcastReceiver {
         } else {
             context.startService(serviceIntent);
         }
-//        context.startService(serviceIntent);
     }
 }

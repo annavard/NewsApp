@@ -24,6 +24,9 @@ import java.util.List;
 
 public class ArticleIntentService extends IntentService {
 
+    public static int PAGE_NUMBER = 1;
+    public static int PAGE_SIZE = 5;
+
     private Context context = this;
 
     public ArticleIntentService() {
@@ -38,6 +41,7 @@ public class ArticleIntentService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d(MainActivity.TAG, "ArticleIntentService - onCreate");
         if (Build.VERSION.SDK_INT >= 26) {
             String CHANNEL_ID = "my_channel_01";
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
@@ -52,22 +56,25 @@ public class ArticleIntentService extends IntentService {
 
             startForeground(1, notification);
         }
+
+
     }
 
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         Log.d(MainActivity.TAG, "ArticleIntentService - onHandleIntent");
 
-        MainActivity.PAGE_NUMBER++;
-        LiveData<List<Article>> liveArticles = ArticleRepository.getInstance(getApplication())
-                .loadFromNetwork(MainActivity.PAGE_NUMBER, MainActivity.PAGE_SIZE);
-
-        liveArticles.observeForever(articles -> {
-            Log.d(MainActivity.TAG, "onStartJob - onChanged!!!!!!");
-//                liveArticles.removeObserver(this);
-            NotificationUtils.showNotification(context, articles.get(0).getSectionName(), articles.get(0).getWebTitle());
-
+       ArticleRepository.getInstance(getApplication()).getmArticle()
+                .observeForever(new Observer<Article>() {
+            @Override
+            public void onChanged(@Nullable Article article) {
+                Log.d(MainActivity.TAG, "onHandleIntent - onChanged!!!!!!");
+                NotificationUtils.showNotification(context, article.getSectionName(), article.getWebTitle());
+            }
         });
+
+
+        ArticleRepository.getInstance(getApplication()).loadFromNetwork(PAGE_NUMBER, PAGE_SIZE, true);
 
     }
 }

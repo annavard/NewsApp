@@ -22,9 +22,6 @@
         </activity>
         <activity android:name=".view.activities.DetailsActivity" />
 
-        <service
-            android:name=".model.services.ArticleJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
         <service android:name=".model.services.ArticleIntentService" />
 
         <receiver android:name=".model.services.AlarmReceiver" />
